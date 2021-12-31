@@ -1,0 +1,35 @@
+name: Run Tasks using Conda
+on: [push]
+jobs:
+  Submission:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: 3.9
+    - name: Conda info
+      run: conda info
+    - name: Conda install
+      run: conda create -n comp0090-cw1 python=3.9 tensorflow=2.4 pytorch=1.7 torchvision=0.8
+    - name: Conda list
+      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && conda list
+    
+    - name: Run task 1
+      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task1 && python task.py 2>&1 | tee ../task1.txt
+    
+    - name: Run task 2
+      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task2 && python task.py 2>&1 | tee ../task2.txt
+    
+    - name: Run task 3
+      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task3 && python task.py 2>&1 | tee ../task3.txt
+    
+    - name: Upload task results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: task-results
+        path: task*.txt
