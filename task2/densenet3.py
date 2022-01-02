@@ -21,7 +21,7 @@ class DenseNet3:
 	:param dropout_rate: set to 0.2
 	:param batch_size: set to 64
 	"""
-	def __init__(self, nb_layers=[4, 4, 4], classes=10, shape=(32, 32, 3), growth_rate=32, compression=0.5,
+	def __init__(self, nb_layers=[4, 4, 4], classes=10, shape=(32, 32, 3), growth_rate=32, compression=1.0,
 	             dropout_rate=0.2, batch_size=64, with_output_block=True, with_se_layers=False):
 		self.dropout_rate = dropout_rate
 		self.with_se_layers = with_se_layers

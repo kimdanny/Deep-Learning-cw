@@ -15,8 +15,8 @@ from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
 EPOCHS = 10
 # set model saving path
 curr_dir = os.getcwd()
-model_name = 'cifar10-densenet3.h5'
-MODEL_FILE_PATH = os.path.join(curr_dir, model_name)
+MODEL_NAME = 'cifar10-densenet3.h5'
+MODEL_FILE_PATH = os.path.join(curr_dir, MODEL_NAME)
 cutout_class = Cutout()
 
 # cifar-10 dataset loading
@@ -83,7 +83,7 @@ print(f"Final test accuracy after training: {test_acc}")
 
 
 # load the saved model
-model = load_model('cifar10-densenet3.h5')
+model = load_model(MODEL_NAME)
 
 # model prediction
 n_sample = 36
