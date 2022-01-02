@@ -12,7 +12,7 @@ from densenet3 import DenseNet3
 from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
 
 # Global parameters
-EPOCHS = 10
+EPOCHS = 1
 # set model saving path
 curr_dir = os.getcwd()
 MODEL_NAME = 'cifar10-densenet3.h5'
@@ -23,6 +23,31 @@ cutout_class = Cutout()
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
+
+# data augmentation
+# TODO: optimise with fixed length array filling
+def augment_images(train_images: np.ndarray) -> np.ndarray:
+    cutout_train_images = np.array([cutout_class.cutout(im) for im in train_images])
+    return cutout_train_images
+
+# visualise the cutout implementation to cutout.png
+sample_16 = x_train[:16].astype('uint8')
+cutout_sample_16 = augment_images(x_train)[:16].astype('uint8')
+# 16 original pictures concatenated horizontally
+original_concated = get_concat_h_multi_resize(sample_16)
+# 16 cutout pictures concatenated horizontally
+cutout_concated = get_concat_h_multi_resize(cutout_sample_16)
+# both images above concatenated vertically
+get_concat_v_multi_resize([original_concated, cutout_concated]).save('cutout.png')
+
+
+# Data Aug: apply cutout into x_train
+x_train = augment_images(x_train)
+
+
+# change datatype to float
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
 # normalize images to [0,1]
 x_train = x_train / 255.0
 x_test = x_test / 255.0
@@ -30,6 +55,7 @@ x_test = x_test / 255.0
 # categorical encoding of labels
 y_train = to_categorical(y_train, 10)
 y_test = to_categorical(y_test, 10)
+
 
 # DenseNet model loading
 dense_net_class = DenseNet3()
@@ -46,27 +72,7 @@ checkpoint = ModelCheckpoint(filepath=MODEL_FILE_PATH,
                              verbose=1, save_best_only=True)
 callback = [checkpoint]
 
-
-# data augmentation
-# TODO: optimise with fixed length array filling
-def augment_images(train_images: np.ndarray) -> np.ndarray:
-    cutout_train_images = np.array([cutout_class.cutout(im) for im in train_images])
-    return cutout_train_images
-
-
-# # visualise the cutout implementation
-# sample_16 = x_train[:16]
-# cutout_sample_16 = np.array([cutout_class.cutout(im).astype('uint8') for im in sample_16])
-# # 16 original pictures concatenated horizontally
-# original_concated = get_concat_h_multi_resize(sample_16)
-# # 16 cutout pictures concatenated horizontally
-# cutout_concated = get_concat_h_multi_resize(cutout_sample_16)
-# # both images above concatenated vertically
-# get_concat_v_multi_resize([original_concated, cutout_concated]).save('cutout.png')
-
-# apply cutout into x_train
-x_train = augment_images(x_train)
-
+# Train the model
 history = model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=callback)
 
 

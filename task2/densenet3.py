@@ -22,10 +22,9 @@ class DenseNet3:
 	:param batch_size: set to 64
 	"""
 	def __init__(self, nb_layers=[4, 4, 4], classes=10, shape=(32, 32, 3), growth_rate=32, compression=1.0,
-	             dropout_rate=0.2, batch_size=64, with_output_block=True, with_se_layers=False):
+	             dropout_rate=0.2, batch_size=64, with_se_layers=False):
 		self.dropout_rate = dropout_rate
 		self.with_se_layers = with_se_layers
-		self.with_output_block = with_output_block
 		self.batch_size = batch_size
 		self.shape = shape
 		self.classes = classes
@@ -87,12 +86,9 @@ class DenseNet3:
 		x = BatchNormalization(name='conv_final_blk_bn')(x)
 		x = Activation('relu', name='relu_final_blk')(x)
 
-		# TODO: can erase this and erase self.with_output_block
-		if not self.with_output_block:
-			return Model(inputs=img_input, outputs=x)
-
-		x = GlobalAveragePooling2D(name='pool_final')(x)
-		x = Dense(self.classes, name='fc6')(x)
+		# Final fully connected layer
+		x = GlobalAveragePooling2D(name='final_pool')(x)
+		x = Dense(self.classes, name='final_fc')(x)
 		output = Activation('softmax', name='prob')(x)
 
 		return Model(inputs=img_input, outputs=output)
@@ -148,7 +144,7 @@ class DenseNet3:
 
 		return concat_feat, nb_filter
 
-	def transition_block(self, x, stage, nb_filter, compression=0.5, dropout_rate=None):
+	def transition_block(self, x, stage, nb_filter, compression=1.0, dropout_rate=None):
 		"""
 		To reduce the size, DenseNet uses transition layers.
 		These layers contain convolution with kernel size = 1 followed by
