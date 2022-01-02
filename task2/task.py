@@ -6,14 +6,12 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import CategoricalCrossentropy
 from PIL import Image
 import os
-# from task2.densenet3 import DenseNet3
-# from task2.cutout import Cutout
 from cutout import Cutout
 from densenet3 import DenseNet3
 from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
 
 # Global parameters
-EPOCHS = 3
+EPOCHS = 10
 # set model saving path
 curr_dir = os.getcwd()
 model_name = 'cifar10-densenet3.h5'
@@ -70,28 +68,39 @@ x_train = augment_images(x_train)
 
 history = model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=callback)
 
-# def plot_metrics(self, history, metric_name='loss', title='Loss history', filename='loss_plot.png'):
-# 	if not os.path.exists(self.plot_dir):
-# 		os.makedirs(self.plot_dir)
-#
-# 	train_metric = history.history['loss']
-# 	plt.plot(train_metric, color='blue', label=metric_name)
-#
-# 	if self.is_validation:
-# 		val_metric = history.history['val_loss']
-# 		plt.plot(val_metric, color='green', label='val_' + metric_name)
-#
-# 	plt.title(title)
-# 	plt.legend()
-# 	plt.savefig(f'{self.plot_dir}/{filename}')
 
-# TODO: need to print: Report the test set performance in terms of classification accuracy versus the epochs.
-print(history.history['loss'])
-print(history.history['val_loss'])
-print(history.history['accuracy'])
+# test set performance in terms of classification accuracy versus the epochs.
+for i, acc in history.history['accuracy']:
+    print(f"Epoch {i+1} => test accuracy: {acc}")
 
 test_loss, test_acc = model.evaluate(x_test, y_test)
-print(test_loss, test_acc)
+print(f"Final test accuracy after training: {test_acc}")
 
 # TODO: Visualise your results, by saving to a PNG file “result.png”, a montage of 36 test images
 #  with captions indicating the ground-truth and the predicted classes for each.
+
+# CAN VISULISE WITH SAVED MODEL AND MAKE PNG FILE AFTER...
+
+# model prediction
+n_sample = 36
+x_test_samples = x_test[:n_sample]
+y_test_samples = y_test[:n_sample]
+
+y_class_names = []
+y_hat_class_names = []
+
+for x_sample, y_sample in zip(x_test_samples, y_test_samples):
+    image = x_sample.reshape(1, 32, 32, 3)
+    # make prediction (y_hat)
+    y_hat = model.predict(image)
+    y_hat = int(np.argmax(y_hat[0]))
+
+    y_hat_class_name = class_names[y_hat]
+    y_class_name = class_names[y_sample[0]]
+
+    y_class_names.append(y_class_name)
+    y_hat_class_names.append(y_hat_class_names)
+
+print(f'y_class_names: {y_class_names}')
+print(f'y_hat_class_names: {y_hat_class_names}')
+

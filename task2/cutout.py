@@ -6,7 +6,7 @@ import numpy as np
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.datasets import cifar10
 from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
-
+from PIL import Image, ImageFont, ImageDraw
 
 
 class Cutout(Layer):
@@ -73,14 +73,51 @@ class Cutout(Layer):
 if __name__ == '__main__':
 	cutout_class = Cutout()
 
+	(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+	# sample_16 = x_train[:16]
+	# cutout_sample_16 = np.array([cutout_class.cutout(im).astype('uint8') for im in sample_16])
+	#
+	# # 16 original pictures concatenated horizontally
+	# original_concated = get_concat_h_multi_resize(sample_16)
+	# # 16 cutout pictures concatenated horizontally
+	# cutout_concated = get_concat_h_multi_resize(cutout_sample_16)
+	# # both images above concatenated vertically
+	# get_concat_v_multi_resize([original_concated, cutout_concated]).save('cutout.png')
+	class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
 
-	(x_train, _), (_, _) = cifar10.load_data()
-	sample_16 = x_train[:16]
-	cutout_sample_16 = np.array([cutout_class.cutout(im).astype('uint8') for im in sample_16])
+	from tensorflow.keras.models import load_model
 
-	# 16 original pictures concatenated horizontally
-	original_concated = get_concat_h_multi_resize(sample_16)
-	# 16 cutout pictures concatenated horizontally
-	cutout_concated = get_concat_h_multi_resize(cutout_sample_16)
-	# both images above concatenated vertically
-	get_concat_v_multi_resize([original_concated, cutout_concated]).save('cutout.png')
+	model = load_model('./cifar10-densenet3.h5')
+
+	# model prediction
+	n_sample = 6
+	x_test_samples = x_test[:n_sample]
+	y_test_samples = y_test[:n_sample]
+	y_class_names = []
+	y_hat_class_names = []
+
+	for x_sample, y_sample in zip(x_test_samples, y_test_samples):
+		image = x_sample.reshape(1, 32, 32, 3)
+		y_hat = model.predict(image)
+		y_hat = int(np.argmax(y_hat[0]))
+		# print(y_hat)
+		# print(y_sample)
+		y_hat_class_name = class_names[y_hat]
+		y_class_name = class_names[y_sample[0]]
+
+		y_class_names.append(y_class_name)
+		y_hat_class_names.append(y_hat_class_names)
+
+	# Draw the image with captions
+	# TODO: complete visualising the result.png
+	image_list = []
+	for i in range(n_sample):
+		im = Image.fromarray(x_test_samples[i])
+		title_text = f'truth: {y_hat_class_names[i]} || pred: {y_hat_class_names[i]}'
+
+		# draw captions
+		image_editable = ImageDraw.Draw(im)
+		image_editable.text((15, 15), title_text, (237, 230, 211))
+		image_list.append(im)
+
+	image_list[1].show()
