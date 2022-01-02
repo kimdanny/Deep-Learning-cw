@@ -4,6 +4,7 @@ from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import CategoricalCrossentropy
+from tensorflow.keras.models import load_model
 from PIL import Image
 import os
 from cutout import Cutout
@@ -70,7 +71,7 @@ history = model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_
 
 
 # test set performance in terms of classification accuracy versus the epochs.
-for i, acc in history.history['accuracy']:
+for i, acc in enumerate(history.history['accuracy']):
     print(f"Epoch {i+1} => test accuracy: {acc}")
 
 test_loss, test_acc = model.evaluate(x_test, y_test)
@@ -78,8 +79,11 @@ print(f"Final test accuracy after training: {test_acc}")
 
 # TODO: Visualise your results, by saving to a PNG file “result.png”, a montage of 36 test images
 #  with captions indicating the ground-truth and the predicted classes for each.
+#  CAN VISUALIZE WITH SAVED MODEL AND MAKE PNG FILE AFTER...
 
-# CAN VISULISE WITH SAVED MODEL AND MAKE PNG FILE AFTER...
+
+# load the saved model
+model = load_model('cifar10-densenet3.h5')
 
 # model prediction
 n_sample = 36
@@ -99,8 +103,8 @@ for x_sample, y_sample in zip(x_test_samples, y_test_samples):
     y_class_name = class_names[y_sample[0]]
 
     y_class_names.append(y_class_name)
-    y_hat_class_names.append(y_hat_class_names)
+    y_hat_class_names.append(y_hat_class_name)
 
-print(f'y_class_names: {y_class_names}')
+print(f'y_class_names: {y_class_names}\n')
 print(f'y_hat_class_names: {y_hat_class_names}')
 

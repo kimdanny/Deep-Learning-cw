@@ -91,14 +91,15 @@ if __name__ == '__main__':
 
 	# model prediction
 	n_sample = 6
-	x_test_samples = x_test[:n_sample]
-	y_test_samples = y_test[:n_sample]
+	x_test_samples = x_test[55:55+n_sample]
+	y_test_samples = y_test[55:55+n_sample]
 	y_class_names = []
 	y_hat_class_names = []
 
 	for x_sample, y_sample in zip(x_test_samples, y_test_samples):
 		image = x_sample.reshape(1, 32, 32, 3)
 		y_hat = model.predict(image)
+		print(y_hat[0])
 		y_hat = int(np.argmax(y_hat[0]))
 		# print(y_hat)
 		# print(y_sample)
@@ -106,14 +107,18 @@ if __name__ == '__main__':
 		y_class_name = class_names[y_sample[0]]
 
 		y_class_names.append(y_class_name)
-		y_hat_class_names.append(y_hat_class_names)
+		y_hat_class_names.append(y_hat_class_name)
+
+	print(f'y_class_names: {y_class_names}')
+	print(f'y_hat_class_names: {y_hat_class_names}')
 
 	# Draw the image with captions
 	# TODO: complete visualising the result.png
 	image_list = []
 	for i in range(n_sample):
 		im = Image.fromarray(x_test_samples[i])
-		title_text = f'truth: {y_hat_class_names[i]} || pred: {y_hat_class_names[i]}'
+		title_text = f'truth: {y_class_names[i]} || pred: {y_hat_class_names[i]}'
+		print(title_text)
 
 		# draw captions
 		image_editable = ImageDraw.Draw(im)
