@@ -13,7 +13,7 @@ from densenet3 import DenseNet3
 print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
-EPOCHS = 1
+EPOCHS = 10
 K_FOLD = 3
 # set model saving path
 curr_dir = os.getcwd()
@@ -169,7 +169,12 @@ for fold in range(K_FOLD):
 	offset += vali_size
 
 
-def report_cv_summary(history_list, time_list):
+def report_cv_summary(history_list, time_list, is_aug):
+	if is_aug:
+		print("Cross Validation report of models trained with Augmented Dataset")
+	else:
+		print("Cross Validation report of models trained with Non-Augmented Dataset")
+
 	for fold, his in enumerate(history_list):
 		print(f"FOLD {fold + 1}")
 
@@ -200,3 +205,9 @@ def report_cv_summary(history_list, time_list):
 		print(f"Cross Validating speed: {fold_time // 60} min {fold_time % 60} sec")
 
 		print()
+
+
+# Report the cv summary
+report_cv_summary(histories_no_aug, time_histories_no_aug, is_aug=False)
+report_cv_summary(histories_aug, time_histories_aug, is_aug=True)
+
