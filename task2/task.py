@@ -1,5 +1,4 @@
 import numpy as np
-import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
@@ -9,7 +8,8 @@ from PIL import Image
 import os
 from cutout import Cutout
 from densenet3 import DenseNet3
-from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
+from utils import get_concat_v_multi_resize, get_concat_h_multi_resize
+
 
 # Global parameters
 EPOCHS = 10
@@ -25,7 +25,6 @@ class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', '
 
 
 # data augmentation
-# TODO: optimise with fixed length array filling
 def augment_images(train_images: np.ndarray) -> np.ndarray:
     cutout_train_images = np.array([cutout_class.cutout(im) for im in train_images])
     return cutout_train_images
@@ -83,10 +82,9 @@ for i, acc in enumerate(history.history['accuracy']):
 test_loss, test_acc = model.evaluate(x_test, y_test)
 print(f"Final test accuracy after training: {test_acc}")
 
-# TODO: Visualise your results, by saving to a PNG file “result.png”, a montage of 36 test images
-#  with captions indicating the ground-truth and the predicted classes for each.
-#  CAN VISUALIZE WITH SAVED MODEL AND MAKE PNG FILE AFTER...
-
+"""A good point. ImageDraw module in PIL can be used for adding captions to images, but this can get complicated. 
+Since we do not have a good example for this in the tutorial, it is fine if you can just print out the predictions 
+and labels (in a clear format) on the terminal. I will make sure all markers are aware of this. """
 
 # load the saved model
 model = load_model(MODEL_NAME)
@@ -108,9 +106,10 @@ for x_sample, y_sample in zip(x_test_samples, y_test_samples):
     y_hat_class_name = class_names[y_hat]
     y_class_name = class_names[int(np.argmax(y_sample))]
 
-    y_class_names.append(y_class_name)
     y_hat_class_names.append(y_hat_class_name)
+    y_class_names.append(y_class_name)
 
-print(f'y_class_names: {y_class_names}')
 print(f'y_hat_class_names: {y_hat_class_names}')
+print(f'y_class_names: {y_class_names}')
+
 
