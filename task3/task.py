@@ -15,7 +15,7 @@ print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
 EPOCHS = 10
-K_FOLD = 2
+K_FOLD = 3
 # set model saving path
 curr_dir = os.getcwd()
 MODEL_NAME = 'cifar10-densenet3-no-aug.h5'
@@ -32,7 +32,7 @@ TUTORIALNET_FILE_PATH = os.path.join(curr_dir, TUTORIALNET_NAME)
 LENET_FILE_PATH = os.path.join(curr_dir, LENET_NAME)
 
 cutout_class = Cutout()
-"""
+
 # cifar-10 dataset loading
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
@@ -258,7 +258,7 @@ print(f"Non-Augmented model => Final test accuracy: {test_acc} || test mse: {tes
 test_loss, test_acc, test_mse = model_aug.evaluate(x_test, y_test)
 print(f"Augmented model => Final test accuracy: {test_acc} || test mse: {test_mse} || test loss: {test_loss}")
 
-"""
+
 
 ##################################################
 # Retrain two further models with entire dev set #
