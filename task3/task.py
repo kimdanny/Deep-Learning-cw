@@ -6,6 +6,8 @@ from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.applications.resnet import ResNet50
+from alexnet import AlexNet
+from lenet import LeNet
 from copy import deepcopy
 import os
 from time import time
@@ -15,7 +17,7 @@ from densenet3 import DenseNet3
 print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
-EPOCHS = 1
+EPOCHS = 10
 K_FOLD = 2
 # set model saving path
 curr_dir = os.getcwd()
@@ -26,11 +28,11 @@ MODEL_FILE_PATH = os.path.join(curr_dir, MODEL_NAME)
 MODEL_FILE_PATH_AUG = os.path.join(curr_dir, MODEL_NAME_AUG)
 
 
-VGG_NAME = 'cifar10-vgg16.h5'
-RESNET_NAME = 'cifar10-resnet50.h5'
+ALEXNET_NAME = 'cifar10-alexnet.h5'
+LENET_NAME = 'cifar10-lenet.h5'
 
-VGG_FILE_PATH = os.path.join(curr_dir, VGG_NAME)
-RESNET_FILE_PATH = os.path.join(curr_dir, RESNET_NAME)
+ALEXNET_FILE_PATH = os.path.join(curr_dir, ALEXNET_NAME)
+LENET_FILE_PATH = os.path.join(curr_dir, LENET_NAME)
 
 cutout_class = Cutout()
 """
@@ -276,30 +278,33 @@ y_train = to_categorical(y_train, 10)
 y_test = to_categorical(y_test, 10)
 
 
-##########
-# VGG 16 #
-##########
-print("VGG16 Model training")
-vgg_model = VGG16(input_shape=(32, 32, 3), classes=10)
-vgg_model.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
-vgg_checkpoint = ModelCheckpoint(filepath=VGG_FILE_PATH, verbose=1, save_best_only=True)
-vgg_callback = [vgg_checkpoint]
-
-vgg_history = vgg_model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=vgg_callback)
-
-test_loss, test_acc = vgg_model.evaluate(x_test, y_test)
-print(f"VGG model => Final test accuracy: {test_acc} || test loss: {test_loss}")
-
 ############
-# ResNet50 #
+# LeNet    #
 ############
-print("ResNet50 Model training")
-resnet_model = ResNet50(input_shape=(32, 32, 3), classes=10)
-resnet_model.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
-resnet_checkpoint = ModelCheckpoint(filepath=RESNET_FILE_PATH, verbose=1, save_best_only=True)
-resnet_callback = [resnet_checkpoint]
+print("LeNet Model training")
+lenet = LeNet()
+lenet.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+lenet_checkpoint = ModelCheckpoint(filepath=LENET_FILE_PATH, verbose=1, save_best_only=True)
+lenet_callback = [lenet_checkpoint]
 
-resnet_history = resnet_model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=resnet_callback)
+lenet.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=lenet_callback)
 
-test_loss, test_acc = resnet_model.evaluate(x_test, y_test)
-print(f"ResNet50 model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+test_loss, test_acc = lenet.evaluate(x_test, y_test)
+print(f"LeNet model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+
+
+###########
+# AlexNet #
+###########
+print("AlexNet Model training")
+alex_net = AlexNet()
+alex_net.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+alexnet_checkpoint = ModelCheckpoint(filepath=ALEXNET_FILE_PATH, verbose=1, save_best_only=True)
+alexnet_callback = [alexnet_checkpoint]
+
+alex_net.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=alexnet_callback)
+
+test_loss, test_acc = alex_net.evaluate(x_test, y_test)
+print(f"AlexNet model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+
+
