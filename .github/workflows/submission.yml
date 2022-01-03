@@ -47,10 +47,9 @@ jobs:
 #        with:
 #          name: model-files-task2
 #          path: task2/cifar10*.h5
-
-    - name: Upload model files task 3
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: model-files-task3
-          path: task3/cifar10*.h5
+    - name: Upload task results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: model-files-task3
+        path: task3/cifar10*.h5
