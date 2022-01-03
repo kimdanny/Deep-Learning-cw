@@ -1,6 +1,13 @@
 import tensorflow as tf
 
 
+def get_mse(y, y_hat):
+	errors = y - y_hat
+	squared_errors = tf.math.square(errors)
+	mse = sum(squared_errors) / len(squared_errors)
+	return mse
+
+
 # function to transform X
 def transform(X, degree):
 	m, n = X.shape
@@ -40,6 +47,43 @@ def fit_polynomial_sgd(X, Y, degree, learning_rate=0.01, iterations=10000, batch
 	return weights
 
 
+def sgd_regressor(X, y, learning_rate=0.2, n_epochs=1000, k=40):
+	w = tf.zeros(degree + 1)  # Randomly initializing weights
+	b = np.random.randn(1, 1)  # Random intercept value
+
+	epoch = 1
+
+	while epoch <= n_epochs:
+
+		temp = X.sample(k)
+
+		X_tr = temp.iloc[:, 0:13].values
+		y_tr = temp.iloc[:, -1].values
+
+		Lw = w
+		Lb = b
+
+		loss = 0
+		y_pred = []
+		sq_loss = []
+
+		for i in range(k):
+			Lw = (-2 / k * X_tr[i]) * (y_tr[i] - np.dot(X_tr[i], w.T) - b)
+
+			w = w - learning_rate * Lw
+
+			y_predicted = np.dot(X_tr[i], w.T)
+			y_pred.append(y_predicted)
+
+		loss = get_mse(y_pred, y_tr)
+
+		print("Epoch: %d, Loss: %.3f" % (epoch, loss))
+		epoch += 1
+		learning_rate = learning_rate / 1.02
+
+	return w, b
+
+
 # predicts y_hat
 def polynomial_fun(X, weights, degree):
 	X_transform = transform(X, degree)
@@ -47,15 +91,4 @@ def polynomial_fun(X, weights, degree):
 
 
 if __name__ == "__main__":
-	X = np.array([[1, 2, 3, 4]])
-	X = X.T
-	Y = np.array([3, 2, 0, 5])
 
-	# model training
-	model = PolynomialRegression(degree=3)
-
-	model.fit(X, Y)
-	print(model.weights)
-
-	# Prediction on training set
-	Y_pred = model.predict(X)

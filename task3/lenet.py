@@ -17,7 +17,7 @@ def LeNet():
     # Sub Sampling Layer (Max Pooling)
     model.add(keras.layers.MaxPool2D(pool_size=2, strides=2))
 
-    # Fully Connected (FC) Layer와 연결하기 위한 Flatten
+    # Fully Connected (FC)
     model.add(keras.layers.Flatten())
 
     # FC1 Layer

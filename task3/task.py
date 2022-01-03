@@ -3,10 +3,7 @@ from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import CategoricalCrossentropy
-from tensorflow.keras.models import load_model
-from tensorflow.keras.applications.vgg16 import VGG16
-from tensorflow.keras.applications.resnet import ResNet50
-from alexnet import AlexNet
+from tutorialnet import TutorialNet
 from lenet import LeNet
 from copy import deepcopy
 import os
@@ -28,10 +25,10 @@ MODEL_FILE_PATH = os.path.join(curr_dir, MODEL_NAME)
 MODEL_FILE_PATH_AUG = os.path.join(curr_dir, MODEL_NAME_AUG)
 
 
-ALEXNET_NAME = 'cifar10-alexnet.h5'
+TUTORIALNET_NAME = 'cifar10-tutorialnet.h5'
 LENET_NAME = 'cifar10-lenet.h5'
 
-ALEXNET_FILE_PATH = os.path.join(curr_dir, ALEXNET_NAME)
+TUTORIALNET_FILE_PATH = os.path.join(curr_dir, TUTORIALNET_NAME)
 LENET_FILE_PATH = os.path.join(curr_dir, LENET_NAME)
 
 cutout_class = Cutout()
@@ -293,18 +290,18 @@ test_loss, test_acc = lenet.evaluate(x_test, y_test)
 print(f"LeNet model => Final test accuracy: {test_acc} || test loss: {test_loss}")
 
 
-###########
-# AlexNet #
-###########
-print("AlexNet Model training")
-alex_net = AlexNet()
-alex_net.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
-alexnet_checkpoint = ModelCheckpoint(filepath=ALEXNET_FILE_PATH, verbose=1, save_best_only=True)
-alexnet_callback = [alexnet_checkpoint]
+###############
+# TutorialNet #
+###############
+print("TutorialNet Model training")
+tutorial_net = TutorialNet()
+tutorial_net.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+tutorialnet_checkpoint = ModelCheckpoint(filepath=TUTORIALNET_FILE_PATH, verbose=1, save_best_only=True)
+tutorialnet_callback = [tutorialnet_checkpoint]
 
-alex_net.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=alexnet_callback)
+tutorial_net.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=tutorialnet_callback)
 
-test_loss, test_acc = alex_net.evaluate(x_test, y_test)
-print(f"AlexNet model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+test_loss, test_acc = tutorial_net.evaluate(x_test, y_test)
+print(f"TutorialNet model => Final test accuracy: {test_acc} || test loss: {test_loss}")
 
 
