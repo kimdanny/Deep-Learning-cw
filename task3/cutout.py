@@ -5,7 +5,6 @@ https://arxiv.org/pdf/1708.04552.pdf
 import numpy as np
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.datasets import cifar10
-from utils import get_concat_h_multi_resize, get_concat_v_multi_resize
 from PIL import Image, ImageFont, ImageDraw
 
 
