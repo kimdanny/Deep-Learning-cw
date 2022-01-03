@@ -13,7 +13,7 @@ from densenet3 import DenseNet3
 print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
-EPOCHS = 10
+EPOCHS = 2
 K_FOLD = 3
 # set model saving path
 curr_dir = os.getcwd()
@@ -149,14 +149,14 @@ for fold in range(K_FOLD):
 	                                  validation_data=(vali_cv, y_vali_cv), callbacks=callback_no_aug)
 	end = time()
 	elapsed_sec_no_aug = end - start
-	print(f"Fold {fold} Non-Augmented model CV time: {elapsed_sec_no_aug // 60} min {elapsed_sec_no_aug % 60} sec")
+	print(f"Fold {fold+1} Non-Augmented model CV time: {elapsed_sec_no_aug // 60} min {elapsed_sec_no_aug % 60} sec")
 
 	start = time()
 	history_aug = model_aug.fit(train_aug_cv, y_train_aug_cv, epochs=EPOCHS,
 	                                  validation_data=(vali_aug_cv, y_vali_aug_cv), callbacks=callback_aug)
 	end = time()
 	elapsed_sec_aug = end - start
-	print(f"Fold {fold} Augmented model CV time: {elapsed_sec_aug // 60} min {elapsed_sec_aug % 60} sec")
+	print(f"Fold {fold+1} Augmented model CV time: {elapsed_sec_aug // 60} min {elapsed_sec_aug % 60} sec")
 
 	# save each fold's histories
 	histories_no_aug.append(history_no_aug)
@@ -180,18 +180,18 @@ def report_cv_summary(history_list, time_list, is_aug):
 
 		print("TRAIN LOSS")
 		train_losses = his.history['loss']
-		for fold, train_loss in enumerate(train_losses):
-			print(f"Epoch {fold + 1}: {round(train_loss, 3)}")
+		for i, train_loss in enumerate(train_losses):
+			print(f"Epoch {i + 1}: {round(train_loss, 3)}")
 
 		print("TRAIN ACCURACY")
 		train_accuracies = his.history['accuracy']
-		for fold, train_accuracy in enumerate(train_accuracies):
-			print(f"Epoch {fold + 1}: {round(train_accuracy, 3)}")
+		for i, train_accuracy in enumerate(train_accuracies):
+			print(f"Epoch {i + 1}: {round(train_accuracy, 3)}")
 
 		print("TRAIN MSE")
 		train_mses = his.history['mse']
-		for fold, train_mse in enumerate(train_mses):
-			print(f"Epoch {fold + 1}: {round(train_mse, 3)}")
+		for i, train_mse in enumerate(train_mses):
+			print(f"Epoch {i + 1}: {round(train_mse, 3)}")
 
 		validation_loss = his.history['val_loss']
 		validation_accuracy = his.history['val_accuracy']
@@ -201,6 +201,8 @@ def report_cv_summary(history_list, time_list, is_aug):
 		print(f"VALIDATION ACCURACY: {validation_accuracy[-1]}")
 		print(f"VALIDATION MSE: {validation_mse[-1]}")
 
+		# TODO: index out of range (fixed by fold to i)
+		print(len(time_list))
 		fold_time = time_list[fold]
 		print(f"Cross Validating speed: {fold_time // 60} min {fold_time % 60} sec")
 
@@ -209,5 +211,6 @@ def report_cv_summary(history_list, time_list, is_aug):
 
 # Report the cv summary
 report_cv_summary(histories_no_aug, time_histories_no_aug, is_aug=False)
+# TODO: aug val acc is 0.1 smth is wrong
 report_cv_summary(histories_aug, time_histories_aug, is_aug=True)
 
