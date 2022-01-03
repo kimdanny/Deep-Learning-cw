@@ -208,6 +208,10 @@ def report_cv_summary(history_list, time_list, is_aug):
 
 		print()
 
+	# average time taken
+	# TODO: calculate avg time across the cv
+	print()
+
 
 # Report the cv summary
 report_cv_summary(histories_no_aug, time_histories_no_aug, is_aug=False)

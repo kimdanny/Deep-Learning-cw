@@ -4,7 +4,6 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.models import load_model
-from PIL import Image
 import os
 from cutout import Cutout
 from densenet3 import DenseNet3
@@ -109,7 +108,10 @@ for x_sample, y_sample in zip(x_test_samples, y_test_samples):
     y_hat_class_names.append(y_hat_class_name)
     y_class_names.append(y_class_name)
 
-print(f'y_hat_class_names: {y_hat_class_names}')
-print(f'y_class_names: {y_class_names}')
+print("Final prediction on 36 test images")
+
+for y_hat_class, y_class in zip(y_hat_class_names, y_class_names):
+    print(f'prediction: {y_hat_class} || ground-truth: {y_class}')
+
 
 
