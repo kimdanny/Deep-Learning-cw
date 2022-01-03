@@ -15,8 +15,8 @@ from densenet3 import DenseNet3
 print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
-EPOCHS = 10
-K_FOLD = 3
+EPOCHS = 1
+K_FOLD = 2
 # set model saving path
 curr_dir = os.getcwd()
 MODEL_NAME = 'cifar10-densenet3-no-aug.h5'
@@ -33,7 +33,7 @@ VGG_FILE_PATH = os.path.join(curr_dir, VGG_NAME)
 RESNET_FILE_PATH = os.path.join(curr_dir, RESNET_NAME)
 
 cutout_class = Cutout()
-
+"""
 # cifar-10 dataset loading
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
@@ -254,11 +254,12 @@ for i, (acc, mse) in enumerate(zip(history_aug.history['accuracy'], history_aug.
 	print(f"Epoch {i+1} => test accuracy: {acc} || test mse: {mse}")
 
 # test performance
-test_loss, test_acc = model_no_aug.evaluate(x_test, y_test)
-print(f"Non-Augmented model => Final test accuracy: {test_acc} || test loss: {test_loss}")
-test_loss, test_acc = model_aug.evaluate(x_test, y_test)
-print(f"Augmented model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+test_loss, test_acc, test_mse = model_no_aug.evaluate(x_test, y_test)
+print(f"Non-Augmented model => Final test accuracy: {test_acc} || test mse: {test_mse} || test loss: {test_loss}")
+test_loss, test_acc, test_mse = model_aug.evaluate(x_test, y_test)
+print(f"Augmented model => Final test accuracy: {test_acc} || test mse: {test_mse} || test loss: {test_loss}")
 
+"""
 
 ##################################################
 # Retrain two further models with entire dev set #
