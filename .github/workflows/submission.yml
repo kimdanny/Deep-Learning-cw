@@ -21,11 +21,11 @@ jobs:
 #    - name: Run task 1
 #      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task1 && python task.py 2>&1 | tee ../task1.txt
     
-    - name: Run task 2
-      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task2 && python task.py 2>&1 | tee ../task2.txt
+#    - name: Run task 2
+#      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task2 && python task.py 2>&1 | tee ../task2.txt
     
-#    - name: Run task 3
-#      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task3 && python task.py 2>&1 | tee ../task3.txt
+    - name: Run task 3
+      run: source /usr/share/miniconda/etc/profile.d/conda.sh && conda activate comp0090-cw1 && cd task3 && python task.py 2>&1 | tee ../task3.txt
     
     - name: Upload task results
       if: always()
@@ -41,16 +41,16 @@ jobs:
 #          name: model-files-task1
 #          path: task1/cifar10*.h5
 
-    - name: Upload task results
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: model-files-task2
-        path: task2/cifar10*.h5
-
 #    - name: Upload task results
 #      if: always()
 #      uses: actions/upload-artifact@v2
 #      with:
-#        name: model-files-task3
-#        path: task3/cifar10*.h5
+#        name: model-files-task2
+#        path: task2/cifar10*.h5
+
+    - name: Upload task results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: model-files-task3
+        path: task3/cifar10*.h5

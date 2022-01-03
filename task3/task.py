@@ -4,6 +4,8 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.losses import CategoricalCrossentropy
 from tensorflow.keras.models import load_model
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.resnet import ResNet50
 from copy import deepcopy
 import os
 from time import time
@@ -13,7 +15,7 @@ from densenet3 import DenseNet3
 print("CUTOUT data augmentation Ablation Study using Cross-Validation (CV)")
 
 # Global parameters
-EPOCHS = 2
+EPOCHS = 10
 K_FOLD = 3
 # set model saving path
 curr_dir = os.getcwd()
@@ -22,6 +24,14 @@ MODEL_NAME_AUG = 'cifar10-densenet3-aug.h5'
 
 MODEL_FILE_PATH = os.path.join(curr_dir, MODEL_NAME)
 MODEL_FILE_PATH_AUG = os.path.join(curr_dir, MODEL_NAME_AUG)
+
+
+VGG_NAME = 'cifar10-vgg16.h5'
+RESNET_NAME = 'cifar10-resnet50.h5'
+
+VGG_FILE_PATH = os.path.join(curr_dir, VGG_NAME)
+RESNET_FILE_PATH = os.path.join(curr_dir, RESNET_NAME)
+
 cutout_class = Cutout()
 
 # cifar-10 dataset loading
@@ -53,11 +63,8 @@ y_test = to_categorical(y_test, 10)
 # Randomly pre-shuffles data to give randomness to Cross Validation data split
 shuffler = np.random.permutation(len(x_train))
 x_train = x_train[shuffler]
-y_train = y_train[shuffler]
-
-shuffler_aug = np.random.permutation(len(x_train_aug))
-x_train_aug = x_train_aug[shuffler_aug]
-y_train_aug = y_train[shuffler_aug]
+x_train_aug = x_train_aug[shuffler]
+y_train, y_train_aug = y_train[shuffler], y_train[shuffler]
 
 
 # callback for model checkpointing
@@ -208,13 +215,90 @@ def report_cv_summary(history_list, time_list, is_aug):
 
 		print()
 
-	# average time taken
-	# TODO: calculate avg time across the cv
-	print()
-
 
 # Report the cv summary
 report_cv_summary(histories_no_aug, time_histories_no_aug, is_aug=False)
-# TODO: aug val acc is 0.1 smth is wrong
 report_cv_summary(histories_aug, time_histories_aug, is_aug=True)
 
+
+##########################################
+# Retrain two models with entire dev set #
+##########################################
+print('Retrain two ablation models with entire dev set')
+
+# Train both (ablation) models
+# DenseNet model loading
+dense_net_class = DenseNet3()
+# model_no_aug: model that is to be trained without augmentation
+model_no_aug = dense_net_class.dense_net()
+# model_aug: model that is to be trained WITH augmentation
+model_aug = dense_net_class.dense_net()
+
+for model in [model_no_aug, model_aug]:
+	# compile with cross entropy loss and adam optimiser, and
+	# added mse and accuracy as metrics for monitoring during training
+	model.compile(optimizer='adam',
+	              loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy', 'mse'])
+
+# train two models
+history_no_aug = model_no_aug.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=callback_no_aug)
+history_aug = model_aug.fit(x_train_aug, y_train_aug, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=callback_aug)
+
+# test set performance in terms of classification accuracy versus the epochs.
+print("Non-Augmented Model Holdout set performance")
+for i, (acc, mse) in enumerate(zip(history_no_aug.history['accuracy'], history_no_aug.history['mse'])):
+	print(f"Epoch {i+1} => test accuracy: {acc} || test mse: {mse}")
+
+print("Augmented Model Holdout set performance")
+for i, (acc, mse) in enumerate(zip(history_aug.history['accuracy'], history_aug.history['mse'])):
+	print(f"Epoch {i+1} => test accuracy: {acc} || test mse: {mse}")
+
+# test performance
+test_loss, test_acc = model_no_aug.evaluate(x_test, y_test)
+print(f"Non-Augmented model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+test_loss, test_acc = model_aug.evaluate(x_test, y_test)
+print(f"Augmented model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+
+
+##################################################
+# Retrain two further models with entire dev set #
+##################################################
+
+# cifar-10 dataset loading
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+# preprocessing
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+y_train = to_categorical(y_train, 10)
+y_test = to_categorical(y_test, 10)
+
+
+##########
+# VGG 16 #
+##########
+print("VGG16 Model training")
+vgg_model = VGG16(input_shape=(32, 32, 3), classes=10)
+vgg_model.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+vgg_checkpoint = ModelCheckpoint(filepath=VGG_FILE_PATH, verbose=1, save_best_only=True)
+vgg_callback = [vgg_checkpoint]
+
+vgg_history = vgg_model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=vgg_callback)
+
+test_loss, test_acc = vgg_model.evaluate(x_test, y_test)
+print(f"VGG model => Final test accuracy: {test_acc} || test loss: {test_loss}")
+
+############
+# ResNet50 #
+############
+print("ResNet50 Model training")
+resnet_model = ResNet50(input_shape=(32, 32, 3), classes=10)
+resnet_model.compile(optimizer='adam', loss=CategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+resnet_checkpoint = ModelCheckpoint(filepath=RESNET_FILE_PATH, verbose=1, save_best_only=True)
+resnet_callback = [resnet_checkpoint]
+
+resnet_history = resnet_model.fit(x_train, y_train, epochs=EPOCHS, validation_data=(x_test, y_test), callbacks=resnet_callback)
+
+test_loss, test_acc = resnet_model.evaluate(x_test, y_test)
+print(f"ResNet50 model => Final test accuracy: {test_acc} || test loss: {test_loss}")
