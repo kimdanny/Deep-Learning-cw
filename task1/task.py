@@ -82,12 +82,12 @@ if __name__ == '__main__':
 	# generate y_train with noise
 	y_train = polynomial_fun(x_train_transform_for_data, weight)
 	noise = tf.random.normal(shape=tf.shape(y_train), stddev=0.2, dtype=tf.dtypes.float32)
-	y_train = y_train + noise
+	y_train_observed = y_train + noise
 
 	# generate y_test with noise
 	y_test = polynomial_fun(x_test_transform_for_data, weight)
 	noise = tf.random.normal(shape=tf.shape(y_test), stddev=0.2, dtype=tf.dtypes.float32)
-	y_test = y_test + noise
+	y_test_observed = y_test + noise
 
 	# print(y_train.shape, y_test.shape)  # (100, 1) (50, 1)
 
@@ -112,20 +112,20 @@ if __name__ == '__main__':
 
 
 	diff = []
-	for p, t in zip(y_hat_train, y_train):
+	for p, t in zip(y_train_observed, y_train):
 		pred, true = float(tf.reshape(p, shape=[1, ])), float(tf.reshape(t, shape=[1, ]))
 		diff.append(abs(pred - true))
 
-	print(f"a) Train set mean difference : {mean(diff)}")
-	print(f"a) Train set std of differences  : {stdev(diff)}")
+	print(f"a) Observed Vs. True -> mean difference : {mean(diff)}")
+	print(f"a) Observed Vs. True -> std of differences  : {stdev(diff)}")
 
 	diff = []
 	for p, t in zip(y_hat_test, y_test):
 		pred, true = float(tf.reshape(p, shape=[1, ])), float(tf.reshape(t, shape=[1, ]))
 		diff.append(abs(pred - true))
 
-	print(f"b) Test set mean difference : {mean(diff)}")
-	print(f"b) Test set std of differences  : {stdev(diff)}")
+	print(f"b) LS-pred Vs. True Test set -> mean difference : {mean(diff)}")
+	print(f"b) LS-pred Vs. True Test set -> std of differences  : {stdev(diff)}")
 
 	print()
 
@@ -147,14 +147,14 @@ if __name__ == '__main__':
 		pred, true = float(tf.reshape(p, shape=[1, ])), float(tf.reshape(t, shape=[1, ]))
 		diff.append(abs(pred - true))
 
-	print(f"a) Train set mean difference : {mean(diff)}")
-	print(f"a) Train set std of differences  : {stdev(diff)}")
+	print(f"SGD-pred Vs. True Train set -> mean difference : {mean(diff)}")
+	print(f"SGD-pred Vs. True Train set -> std of differences  : {stdev(diff)}")
 
 	diff = []
 	for p, t in zip(y_hat_test, y_test):
 		pred, true = float(tf.reshape(p, shape=[1, ])), float(tf.reshape(t, shape=[1, ]))
 		diff.append(abs(pred - true))
 
-	print(f"b) Test set mean difference : {mean(diff)}")
-	print(f"b) Test set std of differences  : {stdev(diff)}")
+	print(f"SGD-pred Vs. True Test set -> mean difference : {mean(diff)}")
+	print(f"SGD-pred Vs. True Test set -> std of differences  : {stdev(diff)}")
 
