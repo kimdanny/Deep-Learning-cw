@@ -4,7 +4,7 @@ paper: https://arxiv.org/pdf/1608.06993.pdf
 """
 import tensorflow as tf
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Input, ZeroPadding2D, Dense, Dropout, Activation, Convolution2D, Reshape
+from tensorflow.keras.layers import Input, ZeroPadding2D, Dense, Dropout, Activation, Convolution2D
 from tensorflow.keras.layers import AveragePooling2D, GlobalAveragePooling2D, MaxPooling2D, BatchNormalization
 
 
@@ -21,10 +21,10 @@ class DenseNet3:
 	:param dropout_rate: set to 0.2
 	:param batch_size: set to 64
 	"""
+
 	def __init__(self, nb_layers=[4, 4, 4], classes=10, shape=(32, 32, 3), growth_rate=32, compression=1.0,
-	             dropout_rate=0.2, batch_size=64, with_se_layers=False):
+	             dropout_rate=0.2, batch_size=64):
 		self.dropout_rate = dropout_rate
-		self.with_se_layers = with_se_layers
 		self.batch_size = batch_size
 		self.shape = shape
 		self.classes = classes
@@ -66,22 +66,13 @@ class DenseNet3:
 			x, nb_filter = self.dense_block(x, stage, self.nb_layers[block_idx], nb_filter, self.growth_rate,
 			                                dropout_rate=self.dropout_rate)
 
-			if self.with_se_layers:
-				x = self.se_block(x, stage, 'dense', nb_filter)
-
 			# Add transition_block
 			x = self.transition_block(x, stage, nb_filter, compression=self.compression, dropout_rate=self.dropout_rate)
 			nb_filter = int(nb_filter * self.compression)
 
-			if self.with_se_layers:
-				x = self.se_block(x, stage, 'transition', nb_filter)
-
 		final_stage = stage + 1
 		x, nb_filter = self.dense_block(x, final_stage, self.nb_layers[-1], nb_filter, self.growth_rate,
 		                                dropout_rate=self.dropout_rate)
-
-		if self.with_se_layers:
-			x = self.se_block(x, final_stage, 'dense', nb_filter)
 
 		x = BatchNormalization(name='conv_final_blk_bn')(x)
 		x = Activation('relu', name='relu_final_blk')(x)
@@ -118,18 +109,6 @@ class DenseNet3:
 
 		if dropout_rate:
 			x = Dropout(dropout_rate)(x)
-		return x
-
-	def se_block(self, x, stage, previous, nb_filter, ratio=16):
-		se_name = 'se' + str(stage) + '_' + previous
-		init = x
-		x = GlobalAveragePooling2D(name='global_average_pooling_2d_' + se_name)(x)
-		x = Dense(nb_filter // ratio, name='dense_relu_' + se_name)(x)
-		x = Activation('relu', name='relu_' + se_name)(x)
-		x = Dense(nb_filter, name='dense_sigmoid_' + se_name)(x)
-		x = Activation('sigmoid', name='sigmoid_' + se_name)(x)
-		x = tf.expand_dims(x, 1)
-		x = init * tf.expand_dims(x, 1)
 		return x
 
 	def dense_block(self, x, stage, nb_layers, nb_filter, growth_rate, dropout_rate=None, grow_nb_filters=True):
@@ -171,10 +150,4 @@ class DenseNet3:
 		x = AveragePooling2D((2, 2), strides=(2, 2), name=pool_name_base)(x)
 
 		return x
-
-
-if __name__ == '__main__':
-	dense_net_class = DenseNet3(classes=10)
-	dense_net = dense_net_class.dense_net()
-	dense_net.summary()
 

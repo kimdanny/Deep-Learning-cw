@@ -1,8 +1,19 @@
+"""
+Modification from
+https://note.nkmk.me/en/python-pillow-concat-images/
+"""
 from PIL import Image
 
 
 # For Visulaization of cutouts
 def get_concat_h_multi_resize(im_list, resample=Image.BICUBIC):
+	"""
+	concat PIL images horizontally
+
+	:param im_list: image array list
+	:param resample: Image.BICUBIC
+	:return: horizontally concatenated PIL Image
+	"""
 	min_height = min(Image.fromarray(im).height for im in im_list)
 	im_list_resize = [Image.fromarray(im).resize(
 		(int(Image.fromarray(im).width * min_height / Image.fromarray(im).height), min_height), resample=resample)
@@ -17,6 +28,13 @@ def get_concat_h_multi_resize(im_list, resample=Image.BICUBIC):
 
 
 def get_concat_v_multi_resize(im_list, resample=Image.BICUBIC):
+	"""
+	concat PIL images Vertically
+
+	:param im_list: image array list
+	:param resample: Image.BICUBIC
+	:return: Vertically concatenated PIL Image
+	"""
 	min_width = min(im.width for im in im_list)
 	im_list_resize = [im.resize((min_width, int(im.height * min_width / im.width)), resample=resample)
 	                  for im in im_list]

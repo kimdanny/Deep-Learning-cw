@@ -40,6 +40,12 @@ class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', '
 
 # data augmentation
 def augment_images(train_images: np.ndarray) -> np.ndarray:
+	"""
+	Apply Cutout method to all images
+
+	:param train_images: training images in np.ndarray
+	:return: Augmented images in np.ndarray
+	"""
 	cutout_train_images = np.array([cutout_class.cutout(im) for im in train_images])
 	return cutout_train_images
 
@@ -207,7 +213,6 @@ def report_cv_summary(history_list, time_list, is_aug):
 		print(f"VALIDATION ACCURACY: {validation_accuracy[-1]}")
 		print(f"VALIDATION MSE: {validation_mse[-1]}")
 
-		# TODO: index out of range (fixed by fold to i)
 		print(len(time_list))
 		fold_time = time_list[fold]
 		print(f"Cross Validating speed: {fold_time // 60} min {fold_time % 60} sec")
@@ -257,7 +262,6 @@ test_loss, test_acc, test_mse = model_no_aug.evaluate(x_test, y_test)
 print(f"Non-Augmented model => Final test accuracy: {test_acc} || test mse: {test_mse} || test loss: {test_loss}")
 test_loss, test_acc, test_mse = model_aug.evaluate(x_test, y_test)
 print(f"Augmented model => Final test accuracy: {test_acc} || test mse: {test_mse} || test loss: {test_loss}")
-
 
 
 ##################################################

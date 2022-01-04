@@ -25,6 +25,12 @@ class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', '
 
 # data augmentation
 def augment_images(train_images: np.ndarray) -> np.ndarray:
+    """
+    Apply Cutout method to all images
+
+    :param train_images: training images in np.ndarray
+    :return: Augmented images in np.ndarray
+    """
     cutout_train_images = np.array([cutout_class.cutout(im) for im in train_images])
     return cutout_train_images
 
@@ -81,9 +87,12 @@ for i, acc in enumerate(history.history['accuracy']):
 test_loss, test_acc = model.evaluate(x_test, y_test)
 print(f"Final test accuracy after training: {test_acc}")
 
-"""A good point. ImageDraw module in PIL can be used for adding captions to images, but this can get complicated. 
+"""
+From Prof. Yipeng's Note on result.png.
+A good point. ImageDraw module in PIL can be used for adding captions to images, but this can get complicated. 
 Since we do not have a good example for this in the tutorial, it is fine if you can just print out the predictions 
-and labels (in a clear format) on the terminal. I will make sure all markers are aware of this. """
+and labels (in a clear format) on the terminal. I will make sure all markers are aware of this. 
+"""
 
 # load the saved model
 model = load_model(MODEL_NAME)
